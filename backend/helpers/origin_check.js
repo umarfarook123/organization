@@ -24,7 +24,7 @@ exports.jwtVerify = (req, res, next) => {
     next()
   } catch (err) {
 
-    return res.json({ status: 400, message: "Invalid token" });
+    return res.json({ status: false, message: "Invalid token" });
   }
 };
 
@@ -38,16 +38,16 @@ exports.authenticateJWT = (roles = '') => (req, res, next) => {
     if (err) {
       // Handle JWT authentication errors here
       if (err.name === 'TokenExpiredError') {
-        return res.status(401).json({ error: 'Token has expired' });
+        return res.json({ status: false, message: "token is required" });
       }
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.json({ status: false, message: "Unauthorized" });
     }
 
     if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.json({ status: false, message: "Unauthorized" });
     }
 
-    if (roles == 'admin' && roles !== user.role) return res.status(401).json({ error: 'You are not allowed!' });
+    if (roles == 'admin' && roles !== user.role) return res.json({ status: false, message: "you are not allowed" });
 
 
     // User is authenticated, you can proceed with the protected logic

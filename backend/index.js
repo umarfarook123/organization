@@ -44,11 +44,6 @@ app.use(function (req, res, next) {
 });
 
 
-
-// const initializePassportJwtStrategy = require('./helpers/passport'); // Add this line
-// app.use(passport.initialize());
-// initializePassportJwtStrategy(passport); 
-
 app.use(trimRequest.all);
 
 const passportConfig = require('./helpers/passport');

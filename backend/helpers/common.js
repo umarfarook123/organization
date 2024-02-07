@@ -1,17 +1,10 @@
 
-// const encrypt_decrypt = require('./OpvbcvFAsdaqWSRO');
 var send_mail = require('./mail_model');
 const geoip = require('geoip-lite');
 const useragent = require('express-useragent');
 const AWS = require("aws-sdk");
 const fs = require("fs");
-// const config = require('../config/config');
 
-// let s3bucket = new AWS.S3({
-//     accessKeyId: config.ACCESS_KEY,
-//     secretAccessKey: config.ACCESS_SECRET,
-//     Bucket: config.BUCKET_NAME,
-// });
 
 
 exports.getIPAddress = (request) => {
@@ -235,7 +228,6 @@ exports.s3SingleUpload = async (reqFile) => {
         const { mimetype, filename, path } = reqFile;
         let key = filename + '.' + mimetype.split("/")[1];
         const blob = fs.readFileSync(path);
-        // const uploadedImage = await s3bucket.upload({ Bucket: config.BUCKET_NAME, Key: 'image/' + key, Body: blob, ACL: 'public-read', ContentType: mimetype }).promise()
         const uploadedImage = await s3bucket.upload({ Bucket: config.BUCKET_NAME, Key: key, Body: blob, ACL: 'public-read', ContentType: mimetype }).promise()
         const imgLink = uploadedImage.Location ? uploadedImage.Location : false;
         return imgLink;
@@ -314,33 +306,13 @@ exports.validateField = async (fields, reqBody) => {
 
     }
     catch (err) {
-        console.log("exports.validateField= ~ err:", err)
+        ("exports.validateField= ~ err:", err)
         return { status: false };
     }
 
 };
 
 const { create, find, findOne, updateOne, countDocuments, findOneNull, updateOneNull, insertmany, aggregation } = require('./query_helper');
-
-// exports.UserNameCheck = async (request, res, collection) => {
-
-//     const { address, userName } = request;
-
-//     try {
-
-//         let userNameData = await findOne(collection, { userName }, { userName: 1, address: 1 });
-//         if (userNameData.address == address || !userNameData) {
-
-//             return true;
-//         }
-//         else {
-//             return false;
-//         }
-//     }
-//     catch (err) {
-//         return false;
-//     }
-// }
 
 const crypto = require('crypto');
 const faker = require('faker');
@@ -377,14 +349,8 @@ exports.generateFakeData = () => {
         lastName: faker.name.lastName(),
         password: faker.internet.password(),
         role: faker.random.arrayElement(['user', 'admin']),
-        // employeeId: faker.random.alphaNumeric(6),
         dob: faker.date.past(),
-        ipData: {
-            ipAddress: faker.internet.ip(),
-            location: faker.address.city(),
-            browser_name: faker.internet.userAgent(),
-            // os: faker.system.commonFileExt(),
-        },
+
     };
 }
 
@@ -403,7 +369,7 @@ exports.UserNameCheck = async (request, collection) => {
         }
     }
     catch (err) {
-        console.log("exports.UserNameCheck= ~ err:", err)
+        ("exports.UserNameCheck= ~ err:", err)
         return false;
     }
 }

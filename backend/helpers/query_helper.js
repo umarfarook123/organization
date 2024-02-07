@@ -11,17 +11,10 @@ exports.find = async (collection, query, projection, options) => {
 };
 
 exports.findOne = async (collection, query, projection, options) => {
-    console.log("exports.findOne= ~ query:", query)
-
-    console.log("exports.findOne= ~ collection:", collection)
 
     if (!collection) return { status: false, message: "collection not found" };
     try {
         let data = await db[collection].findOne(query, projection, options);
-        console.log("exports.findOne= ~ data:", data)
-
-
-
         return { status: true, data };
 
     } catch (err) {
@@ -38,7 +31,6 @@ exports.create = async (collection, info) => {
         let data = await db[collection].create(info);
         return { status: true, data };
     } catch (err) {
-        console.log('err: ', err);
         return { status: false, message: err.message };
     }
 };
@@ -91,8 +83,6 @@ exports.countDocuments = async (collection, query) => {
 
 
 exports.insertmany = async (collection, data = []) => {
-    console.log("exports.insertmany= ~ data:", data)
-
 
     try {
 
@@ -100,13 +90,11 @@ exports.insertmany = async (collection, data = []) => {
 
 
         let updated = await db[collection].insertMany(data)
-        console.log("🚀 ~ file: query-helper.js:321 ~ exports.insertmany= ~ updated:", updated)
         if (!updated) return { status: false, message: "Something went wrong" };
         return { status: true, data: updated }
 
 
     } catch (err) {
-        console.log("🚀 ~ file: query-helper.js:327 ~ exports.insertmany= ~ err:", err)
 
         return { status: false, message: "Something went wrong", err };
 
@@ -117,7 +105,7 @@ exports.aggregation = async (collection, pipeline) => {
 
     try {
 
-        if (!collection) return sendResponse(response, 400, '', 'Collection not found')
+        if (!collection) return sendResponse(response, false, '', 'Collection not found')
 
         let result = await db[collection].aggregate(pipeline);
 
@@ -131,7 +119,6 @@ exports.aggregation = async (collection, pipeline) => {
         }
 
     } catch (err) {
-        console.log("exports.aggregation= ~ err:q", err)
 
         return false
     }

@@ -42,22 +42,21 @@ exports.signUp = async (req, res) => {
             insertData['password'] = await bcrypt.hash(password, 12);
 
             let userNameData = await common.UserNameCheck(req.body, 'employee');
-            if (!userNameData) return sendResponse(res, 400, '', "Username already taken!");
+            if (!userNameData) return sendResponse(res, false, '', "Username already taken!");
 
             let { status, data: empDataCreate } = await create('employee', insertData);
-            if (!status) return sendResponse(res, 400, '', "Something wrong!");
+            if (!status) return sendResponse(res, false, '', "Something wrong!");
 
-            return sendResponse(res, 200, '', "Signup Succesfully!")
+            return sendResponse(res, true, '', "Signup Succesfully!")
         }
         else {
-            return sendResponse(res, 400, '', "Email already exists!")
+            return sendResponse(res, false, '', "Email already exists!")
         }
 
     }
     catch (err) {
-        console.log('err: ', err);
 
-        return sendResponse(res, 501, '', 'Error Occured' + err.message)
+        return sendResponse(res, false, '', 'Error Occured' + err.message)
     }
 
 }
@@ -76,17 +75,16 @@ exports.login = async (req, res) => {
         let { data: userData } = await findOne('employee', { $and: [{ $or: [{ email: findField }, { userName: findField }] }] }, { email: 1, password: 1, role: 1 });
 
 
-        if (!userData) return sendResponse(res, 400, '', 'Invalid email or employee Id');
+        if (!userData) return sendResponse(res, false, '', 'Invalid email or employee Id');
 
         let passCheck = await bcrypt.compare(password, userData.password);
 
-        if (!passCheck) return sendResponse(res, 400, '', 'Invalid password!');
+        if (!passCheck) return sendResponse(res, false, '', 'Invalid password!');
 
         const accessToken = await jwt.sign({ userId: String(userData._id) }, config.jwtSecret, { expiresIn: '1h' });
 
         let logHistory = { userId: userData._id, ipAddress, location, browser_name, os, role: userData.role }
 
-        console.log("exports.login= ~ logHistory:", logHistory)
 
         let { status, data: logHistoryData } = await create('EMPLOYEE_LOG_HSTRY', logHistory);
 
@@ -117,14 +115,14 @@ exports.organizationData = async (req, res) => {
             let addFakeData = await insertmany('employee', fakeUsers);
             if (!addFakeData.status) return sendResponse(res, false, "", addFakeData.message);
 
-            return sendResponse(res, true, fakeUsers, "Fake Data added successfully");
+            return sendResponse(res, true, '', "Fake Data added successfully");
 
         }
         else if (api == '/organization/user-data-list') {
 
             let options = common.pagination(req.body);
 
-            let findQuery = {}
+            let findQuery = { role: { $ne: 'admin' } }
 
             async.parallel({
                 getData: async function () {
@@ -195,31 +193,6 @@ exports.myProfile = async (req, res) => {
                         {
                             $limit: 5
                         },
-                        // {
-                        //     $project: {
-
-                        //         status: 1,
-                        //         roundId: 1,
-                        //         playerCount: {
-                        //             $size: {
-                        //                 $filter: {
-                        //                     input: "$botData",
-                        //                     as: "player",
-                        //                     cond: { $and: [{ $ne: ["$$player.status", 2] }, { $eq: ["$$player.isBot", false] }] }
-                        //                 }
-                        //             }
-                        //         },
-                        //         botCount: {
-                        //             $size: {
-                        //                 $filter: {
-                        //                     input: "$botData",
-                        //                     as: "player",
-                        //                     cond: { $and: [{ $ne: ["$$player.status", 2] }, { $eq: ["$$player.isBot", true] }] }
-                        //                 }
-                        //             }
-                        //         }
-                        //     }
-                        // },
                     ],
                     as: "logHistory",
 
@@ -258,11 +231,8 @@ exports.seedAdmin = async (req, res) => {
 
 
         const file = path.join(__dirname, '../helpers/admindata.json');
-        console.log('__dirname: ', file);
         let seedData = await fs.readFileSync('./helpers/admindata.json', 'utf8');
-        console.log('seedData: ', seedData);
         seedData = JSON.parse(seedData);
-        console.log('seedData: ', seedData);
         const { userName, email, firstName, lastName, password, dob, role } = seedData;
 
         let validator = await common.validateField(['userName', 'email', 'firstName', 'lastName', 'password', 'dob'], seedData);
@@ -280,14 +250,14 @@ exports.seedAdmin = async (req, res) => {
         insertData['password'] = await bcrypt.hash(password, 12);
 
         let { status, data: empDataCreate } = await create('employee', insertData);
-        if (!status) return sendResponse(res, 400, '', "Something wrong!");
+        if (!status) return sendResponse(res, false, '', "Something wrong!");
 
-        return sendResponse(res, 200, '', "Admin data Seeded Succesfully!")
+        return sendResponse(res, true, '', "Admin data Seeded Succesfully!")
 
 
     }
     catch (err) {
-        console.log('err: ', err);
+        ('err: ', err);
 
         return sendResponse(res, 501, '', 'Error Occured' + err.message)
     }

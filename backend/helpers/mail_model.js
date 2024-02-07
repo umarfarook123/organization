@@ -1,12 +1,4 @@
 var nodemailer = require('nodemailer');
-// var siteSettings = require('../model/sitesettings_model');
-// // const emailtemplate = require('../model/email_template_model');
-
-
-// const config = require('../config/config');
-
-// const client = require('twilio')(config.twillo_accountSid, config.twillo_authToken);
-
 
 exports.sendMail = (to = '', template = '', replacable = {}, callback) => {
 
