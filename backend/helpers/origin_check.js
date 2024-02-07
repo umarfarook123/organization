@@ -50,8 +50,7 @@ exports.authenticateJWT = (roles = '') => (req, res, next) => {
     if (roles == 'admin' && roles !== user.role) return res.json({ status: false, message: "you are not allowed" });
 
 
-    // User is authenticated, you can proceed with the protected logic
-    req.user = user; // Attach the user to the request object
+    req.user = user; 
     next();
   })(req, res, next);
 };
